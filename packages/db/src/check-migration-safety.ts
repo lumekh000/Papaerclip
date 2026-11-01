@@ -996,7 +996,7 @@ export function analyzeMigrationSafety(
 
 async function readMigrations(): Promise<MigrationSafetyInput[]> {
   const files = (await readdir(migrationsDir))
-    .filter((entry) => entry.endsWith(".sql"))
+    .filter((entry) => !entry.startsWith("._") && entry.endsWith(".sql"))
     .sort();
 
   return Promise.all(

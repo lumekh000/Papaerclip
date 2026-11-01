@@ -65,7 +65,7 @@ function ensureJournalMatchesFiles(migrationFiles: string[], journalTags: string
 
 async function main() {
   const migrationFiles = (await readdir(migrationsDir))
-    .filter((entry) => entry.endsWith(".sql"))
+    .filter((entry) => !entry.startsWith("._") && entry.endsWith(".sql"))
     .sort();
 
   ensureNoDuplicates(migrationFiles, "migration files");

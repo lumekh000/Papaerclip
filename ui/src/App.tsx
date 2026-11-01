@@ -155,7 +155,7 @@ function boardRoutes(streamlinedUiEnabled: boolean, combinedInboxTasksEnabled: b
       <Route path="dashboard/live" element={<DashboardLive />} />
       <Route
         path="timeline"
-        element={streamlinedUiEnabled ? <AuditCompatibilityRedirect to="/activity/timeline" /> : <Timeline />}
+        element={<Navigate to="/dashboard" replace />}
       />
       <Route path="onboarding" element={<OnboardingRoutePage />} />
       <Route path="companies" element={<Companies />} />
@@ -373,30 +373,13 @@ function boardRoutes(streamlinedUiEnabled: boolean, combinedInboxTasksEnabled: b
       <Route path="approvals/pending" element={<Approvals />} />
       <Route path="approvals/all" element={<Approvals />} />
       <Route path="approvals/:approvalId" element={<ApprovalDetail />} />
-      <Route path="activity" element={streamlinedUiEnabled ? <CompanyActivity /> : <ProductionSurface><ProductionCompanyActivity /></ProductionSurface>} />
-      <Route path="activity/commentary" element={<AuditHub section="commentary" />} />
-      <Route path="activity/runs" element={<AuditHub section="runs" />} />
-      <Route path="activity/costs" element={<AuditHub section="costs" />} />
-      <Route path="activity/budgets" element={<AuditHub section="budgets" />} />
-      <Route path="activity/timeline" element={<AuditHub section="timeline" />} />
-      {streamlinedUiEnabled ? (
-        <>
-          <Route path="audit" element={<AuditCompatibilityRedirect to="/activity" forceAgentMode />} />
-          <Route path="audit/activity" element={<AuditCompatibilityRedirect to="/activity" />} />
-          <Route path="audit/runs" element={<AuditCompatibilityRedirect to="/activity/runs" />} />
-          <Route path="audit/costs" element={<AuditCompatibilityRedirect to="/activity/costs" />} />
-          <Route path="audit/budgets" element={<AuditCompatibilityRedirect to="/activity/budgets" />} />
-          <Route path="audit/timeline" element={<AuditCompatibilityRedirect to="/activity/timeline" />} />
-          <Route path="runs" element={<AuditCompatibilityRedirect to="/activity/runs" />} />
-          <Route path="costs" element={<AuditCompatibilityRedirect to="/activity/costs" />} />
-          <Route path="budgets" element={<AuditCompatibilityRedirect to="/activity/budgets" />} />
-        </>
-      ) : (
-        <>
-          <Route path="costs" element={<Costs />} />
-          <Route path="audit" element={<Navigate to="/activity?mode=agents" replace />} />
-        </>
-      )}
+      <Route path="activity" element={<Navigate to="/dashboard" replace />} />
+      <Route path="activity/*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="audit" element={<Navigate to="/dashboard" replace />} />
+      <Route path="audit/*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="costs" element={<Navigate to="/dashboard" replace />} />
+      <Route path="budgets" element={<Navigate to="/dashboard" replace />} />
+      <Route path="runs" element={<Navigate to="/dashboard" replace />} />
       {/* Conference Room Chat surfaces (PAP-136/PAP-137): routes stay
           registered but redirect to the company home while the experimental
           flag is off. The board-level `artifacts` mount below is the new

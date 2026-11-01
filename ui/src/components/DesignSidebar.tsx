@@ -1,5 +1,5 @@
 import type { Issue } from "@paperclipai/shared";
-import { Boxes, CircleCheck, CirclePlus, FolderOpen, History, LayoutDashboard, MessageCircle, Package, Repeat, Search, Unplug, Users } from "lucide-react";
+import { Boxes, CircleCheck, CirclePlus, FolderOpen, LayoutDashboard, MessageCircle, Package, Repeat, Search, Unplug, Users } from "lucide-react";
 import { useCompany } from "@/context/CompanyContext";
 import { SidebarAccountMenu } from "./SidebarAccountMenu";
 import { SidebarCompanyMenu } from "./SidebarCompanyMenu";
@@ -42,7 +42,6 @@ export function DesignSidebar({ onNewTask, recentTasks = [] }: { onNewTask: () =
             <SidebarNavItem className="design-sidebar-item" to={`${root}/agents`} label="Agents" icon={Users} />
             <SidebarNavItem className="design-sidebar-item" to={`${root}/skills`} label="Skills" icon={Boxes} />
             <SidebarNavItem className="design-sidebar-item" to={`${root}/apps`} label="Connectors" icon={Unplug} />
-            <SidebarNavItem className="design-sidebar-item" to={`${root}/activity`} label="Audit" icon={History} />
           </SidebarSection>
           {companyRecentTasks.length > 0 ? <div className="design-sidebar-recents">
             <SidebarSection label="Recent Tasks">

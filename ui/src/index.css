@@ -225,52 +225,52 @@
   --composer-effort-press-scale: 1.16;
   --composer-effort-halo: 0 0 0 calc(var(--spacing) * 1.5) color-mix(in oklab, var(--tc-mode-ask) 14%, transparent);
   --radius: 0.5rem;
-  --background: oklch(1 0 0);
+  --background: #ffffff;
   --background-alt: var(--muted);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --collection-filter-active: var(--color-blue-600);
-  --collection-filter-badge: var(--color-blue-600);
-  --collection-filter-badge-foreground: var(--color-white);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-highlight: var(--muted);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --foreground: #090909;
+  --card: #ffffff;
+  --card-foreground: #090909;
+  --popover: #ffffff;
+  --popover-foreground: #090909;
+  --primary: #090909;
+  --primary-foreground: #ffffff;
+  --collection-filter-active: #737373;
+  --collection-filter-badge: #090909;
+  --collection-filter-badge-foreground: #ffffff;
+  --secondary: #f0f0f0;
+  --secondary-foreground: #090909;
+  --muted: #f4f4f5;
+  --muted-highlight: #f0f0f0;
+  --muted-foreground: #71717a;
+  --accent: #f0f0f0;
+  --accent-foreground: #090909;
+  --destructive: #525252;
+  --destructive-foreground: #ffffff;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #090909;
   --focus-ring-stroke-width: 1px;
   --focus-ring-halo-width: 3px;
   --focus-ring-halo: color-mix(in srgb, var(--ring) 20%, transparent);
   --focus-ring-shadow: 0 0 0 var(--focus-ring-halo-width) var(--focus-ring-halo);
-  --scrollbar-thumb: oklch(0.7 0 0);
-  --scrollbar-thumb-hover: oklch(0.6 0 0);
+  --scrollbar-thumb: #d4d4d8;
+  --scrollbar-thumb-hover: #a1a1aa;
   --scrollbar-size: 8px;
   --scrollbar-radius: 999px;
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.985 0 0);
-  --primary-sidebar-background: color-mix(in srgb, var(--border) 50%, var(--background));
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.88 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --chart-1: #d4d4d8;
+  --chart-2: #a1a1aa;
+  --chart-3: #737373;
+  --chart-4: #525252;
+  --chart-5: #262626;
+  --sidebar: #fafafa;
+  --primary-sidebar-background: #fafafa;
+  --sidebar-foreground: #090909;
+  --sidebar-primary: #090909;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f0f0f0;
+  --sidebar-accent-foreground: #090909;
+  --sidebar-border: #e5e5e5;
+  --sidebar-ring: #090909;
   --chip-match-title-bg: oklch(0.97 0.02 265);
   --chip-match-title-fg: oklch(0.4 0.13 265);
   --chip-match-title-border: oklch(0.85 0.05 265);
@@ -346,13 +346,13 @@
   --dashboard-list-time-width: calc(var(--spacing) * 16);
   --dashboard-task-list-columns: var(--dashboard-list-leading-width) minmax(0, 1fr) calc(var(--spacing) * 36) var(--dashboard-list-id-width) var(--dashboard-list-time-width);
   --dashboard-activity-list-columns: var(--dashboard-list-leading-width) minmax(0, 1fr) var(--dashboard-list-id-width) var(--dashboard-list-time-width);
-  --status-task-backlog: #a8aeb2;
-  --status-task-todo: #f59e0b;
-  --status-task-in_progress: #2563eb;
-  --status-task-in_review: #7c3aed;
-  --status-task-done: #22c55e;
-  --status-task-blocked: #dc2626;
-  --status-task-cancelled: #a8aeb2;
+  --status-task-backlog: #737373;
+  --status-task-todo: #c4c4c4;
+  --status-task-in_progress: #ffffff;
+  --status-task-in_review: #a1a1aa;
+  --status-task-done: #d4d4d8;
+  --status-task-blocked: #525252;
+  --status-task-cancelled: #737373;
 
   /* Task status ICON hues (PAP-238 3b) — AA-tuned (every glyph ≥ 3:1 against
      its surface, WCAG 2.1 AA, both modes). Distinct from the
@@ -365,14 +365,14 @@
      (replaces the bespoke teal "covered" state). Light values here; the
      `.dark` block below overrides the hues that need a mode-specific value. */
   --sz-protocol-notice-icon: calc(var(--spacing) * 3.5);
-  --status-task-icon-backlog: #52585d;   /* gray darkened — 7.21:1 on paper */
-  --status-task-icon-todo: #cc7a00;       /* amber darkened — clears 3:1 */
-  --status-task-icon-in_progress: var(--color-blue-600); /* matches nav dots and live labels */
-  --status-task-icon-in_review: var(--status-task-in_review);     /* #7c3aed (light) */
-  --status-task-icon-done: #16a34a;       /* green darkened — clears 3:1 */
-  --status-task-icon-blocked: var(--status-task-blocked);         /* #dc2626 both modes */
-  --status-task-icon-cancelled: #52585d;
-  --status-task-icon-in_queue: var(--status-task-icon-in_progress); /* blocked shape, same mode-aware blue */
+  --status-task-icon-backlog: #737373;
+  --status-task-icon-todo: #737373;
+  --status-task-icon-in_progress: #090909;
+  --status-task-icon-in_review: #525252;
+  --status-task-icon-done: #525252;
+  --status-task-icon-blocked: #525252;
+  --status-task-icon-cancelled: #737373;
+  --status-task-icon-in_queue: #737373;
 
   --folder-color-indigo: #6366f1;
   --folder-color-violet: #8b5cf6;
@@ -594,78 +594,78 @@
 }
 
 .dark {
-  --background: oklch(0.205 0 0);
-  --foreground: oklch(0.985 0 0);
-  --artifact-shadow-sheet: drop-shadow(0 3.406px 10px rgba(26, 26, 26, 0.18));
-  --artifact-shadow-print: 0 3.406px 20px rgba(26, 26, 26, 0.18);
-  --artifact-tile-hover: #202020;
-  --artifact-pill: #333333;
-  --artifact-pill-hover: #333333;
-  --artifact-row: #262626;
-  --artifact-row-hover: #2c2c2c;
+  --background: #090909;
+  --foreground: #fafafa;
+  --artifact-shadow-sheet: drop-shadow(0 3.406px 10px rgba(0, 0, 0, 0.4));
+  --artifact-shadow-print: 0 3.406px 20px rgba(0, 0, 0, 0.4);
+  --artifact-tile-hover: #181818;
+  --artifact-pill: #262626;
+  --artifact-pill-hover: #262626;
+  --artifact-row: #181818;
+  --artifact-row-hover: #262626;
   --side-panel-bg: var(--background);
-  --side-panel-fg: oklch(0.985 0 0);
+  --side-panel-fg: #fafafa;
   --streamlined-task-detail-bg: var(--background);
   --side-panel-streamlined-tab-hover-bg: var(--side-panel-tab-hover-bg);
   --side-panel-streamlined-tab-active-bg: color-mix(in oklab, color-mix(in oklab, var(--accent) 92%, var(--background)) 97%, var(--foreground) 3%);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --collection-filter-active: var(--color-blue-400);
-  --bubble-agent: oklch(0.185 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-highlight: #333333; /* Paper: --dark-color-muted-highlight. */
-  --background-alt: oklch(0.145 0 0); /* Paper: --dark-color-background-alt. */
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.637 0.237 25.331); /* Gallery feedback round 1: user preferred master's original dark destructive red over the preset's softer 0.704 0.191 22.216. */
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --scrollbar-thumb: oklch(0.4 0 0);
-  --scrollbar-thumb-hover: oklch(0.5 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --primary-sidebar-background: var(--muted);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.32 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-  --chip-match-title-bg: oklch(0.27 0.04 265 / 0.5);
-  --chip-match-title-fg: oklch(0.78 0.10 265);
-  --chip-match-title-border: oklch(0.4 0.06 265);
-  --chip-match-comment-bg: oklch(0.27 0.04 145 / 0.5);
-  --chip-match-comment-fg: oklch(0.78 0.08 145);
-  --chip-match-comment-border: oklch(0.4 0.05 145);
-  --chip-match-document-bg: oklch(0.27 0.04 295 / 0.5);
-  --chip-match-document-fg: oklch(0.78 0.08 295);
-  --chip-match-document-border: oklch(0.4 0.05 295);
+  --card: #181818;
+  --card-foreground: #fafafa;
+  --popover: #181818;
+  --popover-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #090909;
+  --collection-filter-active: #a1a1aa;
+  --bubble-agent: #181818;
+  --secondary: #262626;
+  --secondary-foreground: #fafafa;
+  --muted: #262626;
+  --muted-highlight: #262626;
+  --background-alt: #111111;
+  --muted-foreground: #a1a1aa;
+  --accent: #262626;
+  --accent-foreground: #fafafa;
+  --destructive: #525252;
+  --destructive-foreground: #fafafa;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #fafafa;
+  --scrollbar-thumb: #3f3f46;
+  --scrollbar-thumb-hover: #525252;
+  --chart-1: #d4d4d8;
+  --chart-2: #a1a1aa;
+  --chart-3: #737373;
+  --chart-4: #525252;
+  --chart-5: #262626;
+  --sidebar: #111111;
+  --primary-sidebar-background: #111111;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #fafafa;
+  --sidebar-primary-foreground: #090909;
+  --sidebar-accent: #262626;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #fafafa;
+  --chip-match-title-bg: rgba(255, 255, 255, 0.08);
+  --chip-match-title-fg: #d4d4d8;
+  --chip-match-title-border: rgba(255, 255, 255, 0.15);
+  --chip-match-comment-bg: rgba(255, 255, 255, 0.08);
+  --chip-match-comment-fg: #a1a1aa;
+  --chip-match-comment-border: rgba(255, 255, 255, 0.15);
+  --chip-match-document-bg: rgba(255, 255, 255, 0.08);
+  --chip-match-document-fg: #d4d4d8;
+  --chip-match-document-border: rgba(255, 255, 255, 0.15);
   --chip-match-identifier-bg: var(--muted);
   --chip-match-identifier-fg: var(--muted-foreground);
   --chip-match-identifier-border: var(--border);
-  /* Dark-mode status-icon hues. The lighter progress blue gives bare glyphs
-     contrast comparable to the neighboring gray, purple, and green icons.
-     Blocked retains its base red; in_queue follows the progress icon blue. */
-  --status-task-icon-backlog: #9a958a;
-  --status-task-icon-todo: #fbbf24;
-  --status-task-icon-in_progress: var(--color-blue-400); /* matches nav dots and live labels */
-  --status-task-icon-in_review: #9474f0;  /* deeper than violet-400, reads purple */
-  --status-task-icon-done: #34d06f;
-  --status-task-icon-cancelled: #9a958a;
+  /* Dark-mode status-icon hues (Grayscale). */
+  --status-task-icon-backlog: #737373;
+  --status-task-icon-todo: #c4c4c4;
+  --status-task-icon-in_progress: #ffffff;
+  --status-task-icon-in_review: #a1a1aa;
+  --status-task-icon-done: #d4d4d8;
+  --status-task-icon-cancelled: #737373;
+  --status-task-icon-blocked: #525252;
+  --status-task-icon-in_queue: #ffffff;
 }
 
 .streamlined-task-detail-surface {

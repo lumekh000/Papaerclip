@@ -4,10 +4,9 @@ import {
   Inbox,
   ListChecks,
   CircleCheck,
+  CircleDot,
   Target,
   LayoutDashboard,
-  DollarSign,
-  History,
   Search,
   SquarePen,
   Network,
@@ -21,9 +20,10 @@ import {
   Unplug,
   MessagesSquare,
   MessageCircle,
-  GanttChartSquare,
   LayoutGrid,
   Users,
+  BookOpen,
+  History,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -143,46 +143,63 @@ function ClassicSidebar({ children }: { children?: ReactNode }) {
           : "border-r border-border bg-background",
       )}
     >
-      {/* Top bar: company name, aligned with top sections and borderless.
-          Search deliberately does NOT live here:
-          the header's spare width goes to the workspace/organization name,
-          which is the user's orientation anchor and truncates otherwise.
-          Search is the first nav item below instead. */}
-      <div className="flex h-(--sz-60px) shrink-0 items-center gap-1 px-3">
-        <SidebarCompanyMenu />
+      {/* Top Branding: Selected company name on left, Search icon on right */}
+      <div className="flex h-(--sz-60px) shrink-0 items-center justify-between gap-1 px-3 border-b border-sidebar-border/30">
+        <SidebarCompanyMenu hideAvatar showChevron className="px-2 has-[>svg]:px-2" />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={() => {
+                document.dispatchEvent(
+                  new KeyboardEvent("keydown", {
+                    key: "k",
+                    metaKey: true,
+                    bubbles: true,
+                    cancelable: true,
+                  }),
+                );
+              }}
+              aria-label="Search"
+              className="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+            >
+              <Search className="size-4" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Search (⌘K)</TooltipContent>
+        </Tooltip>
       </div>
 
       <nav className={primarySidebarStyles.nav}>
         <div className={primarySidebarStyles.group}>
-          {/* New Task button aligned with nav items */}
+          {/* New Task / New Issue button aligned with nav items */}
           {(() => {
-            const newTaskButton = (
+            const buttonLabel = streamlinedUiEnabled ? "New Task" : "New Issue";
+            const newButton = (
               <button
                 onClick={() => openNewIssue()}
                 data-slot="icon-button"
-                aria-label={rail ? "New Task" : undefined}
+                aria-label={rail ? buttonLabel : undefined}
                 className={cn(
                   "flex items-center gap-2.5 mx-2 rounded-lg px-2 py-1.5 pointer-coarse:py-1 text-(length:--text-compact) font-medium text-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                 )}
               >
                 <SquarePen className="h-4 w-4 shrink-0" />
-                <span className={rail ? SIDEBAR_RAIL_HIDDEN_LABEL : "truncate"}>New Task</span>
+                <span className={rail ? SIDEBAR_RAIL_HIDDEN_LABEL : "truncate"}>{buttonLabel}</span>
               </button>
             );
             return rail ? (
               <Tooltip>
-                <TooltipTrigger asChild>{newTaskButton}</TooltipTrigger>
-                <TooltipContent side="right">New Task</TooltipContent>
+                <TooltipTrigger asChild>{newButton}</TooltipTrigger>
+                <TooltipContent side="right">{buttonLabel}</TooltipContent>
               </Tooltip>
             ) : (
-              newTaskButton
+              newButton
             );
           })()}
-          {/* Search moved out of the header so the workspace name keeps the
-              width; a nav row also keeps search reachable from the
-              collapsed rail, where the old header icon was dropped entirely.
-              Cmd/Ctrl+K remains the keyboard path (command palette). */}
-          <SidebarNavItem to="/search" label="Search" icon={Search} />
+          {streamlinedUiEnabled ? (
+            <SidebarNavItem to="/search" label="Search" icon={Search} />
+          ) : null}
           <SidebarNavItem to="/dashboard" label="Dashboard" icon={LayoutDashboard} liveCount={liveRunCount} />
           {!combinedInboxTasks ? (
             <SidebarNavItem
@@ -213,100 +230,122 @@ function ClassicSidebar({ children }: { children?: ReactNode }) {
           ) : null}
         </div>
 
-        <SidebarSection label="Work" collapsible={{ open: workOpen, onOpenChange: setWorkOpen }}>
-          {/* Agent Chat: Chat leads the Work group as a single row — the
-              agents you talk to live in the Chat surface's own secondary rail
-              (ChatContextualSidebar), not in the primary nav. */}
-          {chatRail ? (
-            <SidebarNavItem to="/chats" label="Chat" icon={MessageCircle} badge={unreadChatCount} badgeLabel="unread chats" />
-          ) : null}
-          {/* Combined Inbox + Task List: Inbox is a view inside Tasks, so the
-              unread/failed-run badge rides on Tasks. */}
-          {combinedInboxTasks ? (
-            <SidebarNavItem
-              to="/issues"
-              label="Tasks"
-              icon={CircleCheck}
-              badge={inboxBadge.inbox}
-              badgeLabel="unread"
-              badgeTone={inboxBadge.failedRuns > 0 ? "danger" : "default"}
-              alert={inboxBadge.failedRuns > 0}
-            />
-          ) : (
-            <SidebarNavItem to="/issues" label="Tasks" icon={CircleCheck} />
-          )}
-          {streamlinedUiEnabled ? (
-            <>
+        {streamlinedUiEnabled ? (
+          <>
+            <SidebarSection label="Work" collapsible={{ open: workOpen, onOpenChange: setWorkOpen }}>
+              {chatRail ? (
+                <SidebarNavItem to="/chats" label="Chat" icon={MessageCircle} badge={unreadChatCount} badgeLabel="unread chats" />
+              ) : null}
+              {combinedInboxTasks ? (
+                <SidebarNavItem
+                  to="/issues"
+                  label="Tasks"
+                  icon={CircleCheck}
+                  badge={inboxBadge.inbox}
+                  badgeLabel="unread"
+                  badgeTone={inboxBadge.failedRuns > 0 ? "danger" : "default"}
+                  alert={inboxBadge.failedRuns > 0}
+                />
+              ) : (
+                <SidebarNavItem to="/issues" label="Tasks" icon={CircleCheck} />
+              )}
               <SidebarNavItem to="/projects" label="Projects" icon={FolderOpen} />
               <SidebarStarredProjects />
-            </>
-          ) : null}
-          <SidebarNavItem to="/routines" label="Routines" icon={Repeat} />
-          <SidebarNavItem to="/artifacts" label="Artifacts" icon={Package} />
-          {showCases ? (
-            <SidebarNavItem to="/cases" label="Cases" icon={Layers} textBadge="beta" />
-          ) : null}
-          {showGoalsLink ? (
-            <SidebarNavItem to="/goals" label="Goals" icon={Target} />
-          ) : goalsLinkPending ? (
-            <div
-              data-testid="sidebar-goals-placeholder"
-              className="h-8 pointer-coarse:h-7"
-              aria-hidden="true"
-            />
-          ) : null}
-          {showWorkspacesLink ? (
-            <SidebarNavItem to="/workspaces" label="Workspaces" icon={GitBranch} />
-          ) : null}
-          <PluginSlotOutlet
-            slotTypes={["sidebar"]}
-            context={pluginContext}
-            className="flex flex-col gap-0.5"
-            itemClassName="text-(length:--text-compact) font-medium"
-            missingBehavior="placeholder"
-          />
-          <PluginLauncherOutlet
-            placementZones={["sidebar"]}
-            context={pluginContext}
-            className="flex flex-col gap-0.5"
-            itemClassName="text-(length:--text-compact) font-medium"
-          />
-        </SidebarSection>
+              <SidebarNavItem to="/routines" label="Routines" icon={Repeat} />
+              <SidebarNavItem to="/artifacts" label="Artifacts" icon={Package} />
+              {showCases ? (
+                <SidebarNavItem to="/cases" label="Cases" icon={Layers} textBadge="beta" />
+              ) : null}
+              {showGoalsLink ? (
+                <SidebarNavItem to="/goals" label="Goals" icon={Target} />
+              ) : goalsLinkPending ? (
+                <div
+                  data-testid="sidebar-goals-placeholder"
+                  className="h-8 pointer-coarse:h-7"
+                  aria-hidden="true"
+                />
+              ) : null}
+              {showWorkspacesLink && !agentChatEnabled ? (
+                <SidebarNavItem to="/workspaces" label="Workspaces" icon={GitBranch} />
+              ) : null}
+              <PluginSlotOutlet
+                slotTypes={["sidebar"]}
+                context={pluginContext}
+                className="flex flex-col gap-0.5"
+                itemClassName="text-(length:--text-compact) font-medium"
+                missingBehavior="placeholder"
+              />
+              <PluginLauncherOutlet
+                placementZones={["sidebar"]}
+                context={pluginContext}
+                className="flex flex-col gap-0.5"
+                itemClassName="text-(length:--text-compact) font-medium"
+              />
+            </SidebarSection>
 
-        {streamlinedUiEnabled ? (
-          <SidebarSection
-            label="Org"
-            collapsible={{ open: organizationOpen, onOpenChange: setOrganizationOpen }}
-          >
-            <SidebarNavItem to="/agents" label="Agents" icon={Users} />
-            <SidebarNavItem to="/skills" label="Skills" icon={Boxes} />
-            <SidebarNavItem to="/apps" label="Connectors" icon={Unplug} />
-            <SidebarNavItem to="/activity" label="Audit" icon={History} />
-          </SidebarSection>
-        ) : null}
+            <SidebarSection
+              label="Org"
+              collapsible={{ open: organizationOpen, onOpenChange: setOrganizationOpen }}
+            >
+              <SidebarNavItem to="/agents" label="Agents" icon={Users} />
+              <SidebarNavItem to="/skills" label="Skills" icon={Boxes} />
+              <SidebarNavItem to="/apps" label="Connectors" icon={Unplug} />
+              <SidebarNavItem to="/activity" label="Audit" icon={History} />
+            </SidebarSection>
 
-        {children ?? (streamlinedUiEnabled ? <SidebarAgents streamlined /> : null)}
-
-        {streamlinedUiEnabled ? (
-          <SidebarRecentTasks companyId={selectedCompanyId} liveIssueIds={liveIssueIds} />
+            {children ?? <SidebarAgents streamlined />}
+            <SidebarRecentTasks companyId={selectedCompanyId} liveIssueIds={liveIssueIds} />
+          </>
         ) : (
           <>
+            {/* Classic layout matching user's screenshot */}
             <SidebarProjects />
+
+            <SidebarSection label="Work" collapsible={{ open: workOpen, onOpenChange: setWorkOpen }}>
+              <SidebarNavItem to="/issues" label="Issues" icon={CircleDot} />
+              {showGoalsLink ? (
+                <SidebarNavItem to="/goals" label="Goals" icon={Target} />
+              ) : goalsLinkPending ? (
+                <div
+                  data-testid="sidebar-goals-placeholder"
+                  className="h-8 pointer-coarse:h-7"
+                  aria-hidden="true"
+                />
+              ) : null}
+              {showWorkspacesLink ? (
+                <SidebarNavItem to="/workspaces" label="Workspaces" icon={GitBranch} />
+              ) : null}
+            </SidebarSection>
+
             <SidebarAgents />
+
             <SidebarSection
               label="Organization"
               collapsible={{ open: organizationOpen, onOpenChange: setOrganizationOpen }}
             >
               <SidebarNavItem to="/org" label="Org" icon={Network} />
               <SidebarNavItem to="/apps" label="Connectors" icon={Unplug} />
-              <SidebarNavItem to="/timeline" label="Timeline" icon={GanttChartSquare} />
-              <SidebarNavItem to="/costs" label="Costs" icon={DollarSign} />
-              <SidebarNavItem to="/activity" label="Activity" icon={History} />
-              <SidebarNavItem to="/activity/commentary" label="Commentary" icon={History} />
+              <SidebarNavItem to="/timeline" label="Timeline" icon={GitBranch} />
+              <SidebarNavItem to="/costs" label="Costs" icon={Boxes} />
+              <SidebarNavItem to="/activity" label="Activity" icon={Repeat} />
               <SidebarNavItem to="/company/settings" label="Settings" icon={Settings} />
             </SidebarSection>
           </>
         )}
+
+        {/* Documentation link at bottom */}
+        <div className="mt-auto pt-4">
+          <a
+            href="https://docs.paperclip.ing/"
+            target="_blank"
+            rel="noreferrer"
+            aria-label={rail ? "Documentation" : undefined}
+            className="flex items-center gap-2.5 mx-2 rounded-lg px-2 py-1.5 pointer-coarse:py-1 text-(length:--text-compact) font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+          >
+            <BookOpen className="h-4 w-4 shrink-0" />
+            <span className={rail ? SIDEBAR_RAIL_HIDDEN_LABEL : "truncate"}>Documentation</span>
+          </a>
+        </div>
 
         <PluginSlotOutlet
           slotTypes={["sidebarPanel"]}

@@ -888,13 +888,6 @@ function AllowedResult({
 
       <RawResponseDisclosure value={value} initiallyOpen={preview.rawFallback} />
 
-      <p className="mt-3 text-xs text-muted-foreground">
-        This call is in the{" "}
-        <Link className="text-primary hover:underline" to="/activity?mode=agents&action=tool_">
-          Audit log
-        </Link>
-        .
-      </p>
       <p className="mt-1 text-xs text-muted-foreground">Last run finished in {seconds(outcome.durationMs)}.</p>
     </div>
   );
@@ -1083,13 +1076,6 @@ function ErrorResult({
       {outcome.result.result !== undefined && <RawResponseDisclosure value={outcome.result.result} initiallyOpen />}
       <p className="mt-3 text-xs text-muted-foreground">
         {needsReconnect ? "After reconnecting, run this action again." : "Adjust the input above and try again."}
-      </p>
-      <p className="mt-1 text-xs text-muted-foreground">
-        Also visible in the{" "}
-        <Link className="text-primary hover:underline" to="/activity?mode=agents&action=tool_">
-          Audit log
-        </Link>
-        .
       </p>
     </div>
   );

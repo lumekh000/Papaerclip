@@ -1,6 +1,16 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { runnerBinaryTarget } from "../packages/paperclip-runner/src/live/runner-binary.ts";
+
+function hasCargo() {
+  try {
+    const res = spawnSync("cargo", ["--version"], { stdio: "ignore" });
+    return res.status === 0;
+  } catch {
+    return false;
+  }
+}
 
 export function resolveNativeRunnerRequirement({ exitCode, stdout }) {
   if (exitCode !== 0) {
@@ -66,6 +76,7 @@ export function paperclipRunnerBinaryNeedsBuild({
 }) {
   if (!nativeRunnerRequired) return false;
   if (configuredBinary?.trim()) return false;
+  if (!hasCargo()) return false;
 
   const selected = resolveNativeRunnerDevBinary({ repoRoot, platform, architecture });
   if (!selected) return true;

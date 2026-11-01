@@ -4,8 +4,6 @@ import {
   CircleDot,
   Target,
   LayoutDashboard,
-  DollarSign,
-  History,
   Search,
   SquarePen,
   Network,
@@ -18,8 +16,8 @@ import {
   FolderOpen,
   Unplug,
   MessagesSquare,
-  GanttChartSquare,
   LayoutGrid,
+  BookOpen,
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -113,13 +111,31 @@ export function Sidebar() {
 
   return (
     <aside className="w-full h-full min-h-0 border-r border-border bg-background flex flex-col">
-      {/* Top bar: company name, aligned with top sections and borderless.
-          Search deliberately does NOT live here:
-          the header's spare width goes to the workspace/organization name,
-          which is the user's orientation anchor and truncates otherwise.
-          Search is the first nav item below instead. */}
-      <div className="flex items-center gap-1 px-3 h-12 shrink-0">
-        <SidebarCompanyMenu />
+      {/* Top Branding: Selected company name on left, Search icon on right */}
+      <div className="flex h-(--sz-60px) shrink-0 items-center justify-between gap-1 px-3 border-b border-border/50">
+        <SidebarCompanyMenu hideAvatar showChevron />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={() => {
+                document.dispatchEvent(
+                  new KeyboardEvent("keydown", {
+                    key: "k",
+                    metaKey: true,
+                    bubbles: true,
+                    cancelable: true,
+                  }),
+                );
+              }}
+              aria-label="Search"
+              className="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+            >
+              <Search className="size-4" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Search (⌘K)</TooltipContent>
+        </Tooltip>
       </div>
 
       <nav className="flex-1 min-h-0 overflow-y-auto scrollbar-auto-hide flex flex-col gap-4 pointer-coarse:gap-3 px-3 py-2">
@@ -227,13 +243,22 @@ export function Sidebar() {
         <SidebarSection label="Company" collapsible={{ open: companyOpen, onOpenChange: setCompanyOpen }}>
           <SidebarNavItem to="/org" label="Org" icon={Network} />
           {showApps ? <SidebarNavItem to="/apps" label="Connectors" icon={Unplug} /> : null}
-          <SidebarNavItem to="/timeline" label="Timeline" icon={GanttChartSquare} />
-          <SidebarNavItem to="/costs" label="Costs" icon={DollarSign} />
-          {/* One entry — /audit merged into the rich Activity feed (PAP-16302). */}
-          <SidebarNavItem to="/activity" label="Activity" icon={History} />
-          <SidebarNavItem to="/activity/commentary" label="Commentary" icon={History} />
           <SidebarNavItem to="/company/settings" label="Settings" icon={Settings} />
         </SidebarSection>
+
+        {/* Documentation link at bottom */}
+        <div className="mt-auto pt-4">
+          <a
+            href="https://docs.paperclip.ing/"
+            target="_blank"
+            rel="noreferrer"
+            aria-label={rail ? "Documentation" : undefined}
+            className="flex items-center gap-2.5 mx-2 rounded-lg px-2 py-1.5 pointer-coarse:py-1 text-(length:--text-compact) font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+          >
+            <BookOpen className="h-4 w-4 shrink-0" />
+            <span className={rail ? SIDEBAR_RAIL_HIDDEN_LABEL : "truncate"}>Documentation</span>
+          </a>
+        </div>
 
         <PluginSlotOutlet
           slotTypes={["sidebarPanel"]}

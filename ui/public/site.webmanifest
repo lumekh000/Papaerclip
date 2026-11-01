@@ -1,14 +1,14 @@
 {
   "id": "/",
-  "name": "Paperclip",
-  "short_name": "Paperclip",
+  "name": "LuMekH",
+  "short_name": "LuMekH",
   "description": "AI-powered project management and agent coordination platform",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "theme_color": "#18181b",
-  "background_color": "#18181b",
+  "theme_color": "#090909",
+  "background_color": "#090909",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

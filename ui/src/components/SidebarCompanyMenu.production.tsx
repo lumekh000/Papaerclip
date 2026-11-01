@@ -47,6 +47,9 @@ import { PluginOrganizationSwitcher } from "./PluginOrganizationSwitcher";
 interface SidebarCompanyMenuProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  showChevron?: boolean;
+  hideAvatar?: boolean;
+  className?: string;
 }
 
 const TRIGGER_WORKSPACE_ICON_CLASS = "size-5 shrink-0 rounded-md text-(length:--text-micro)";
@@ -144,15 +147,21 @@ function SortableCompanyItem({
   );
 }
 
-export function SidebarCompanyMenu(props: SidebarCompanyMenuProps = {}) {
+export function SidebarCompanyMenu({ showChevron, hideAvatar, className, ...props }: SidebarCompanyMenuProps = {}) {
   return (
     <PluginOrganizationSwitcher {...props}>
-      <BuiltinCompanyMenu {...props} />
+      <BuiltinCompanyMenu {...props} showChevron={showChevron} hideAvatar={hideAvatar} className={className} />
     </PluginOrganizationSwitcher>
   );
 }
 
-function BuiltinCompanyMenu({ open: controlledOpen, onOpenChange }: SidebarCompanyMenuProps) {
+function BuiltinCompanyMenu({
+  open: controlledOpen,
+  onOpenChange,
+  showChevron = true,
+  hideAvatar = false,
+  className,
+}: SidebarCompanyMenuProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [isEditingOrder, setIsEditingOrder] = useState(false);
   const { companies, selectedCompany, setSelectedCompanyId, companyListUnavailable, retryCompanies } =
@@ -257,15 +266,10 @@ function BuiltinCompanyMenu({ open: controlledOpen, onOpenChange }: SidebarCompa
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          // The nav icon column sits at nav px-3 + item mx-2 + item px-2.
-          // Match that inset with wrapper px-3 + trigger px-4. Override the
-          // Button's direct-SVG padding too so the expanded chevron cannot pull
-          // the avatar four pixels left of the nav icons.
-          // `min-w-0` on every link of the flex chain (button → label row → label)
-          // is what lets the name truncate: a flex item's default `min-width:auto`
-          // floors it at its content width, so without it a long name widens the
-          // trigger past the sidebar and pushes the chevron out of bounds.
-          className="h-9 min-w-0 flex-1 justify-start gap-2 px-4 text-left hover:bg-accent/50 hover:text-foreground has-[>svg]:px-4 dark:hover:bg-accent/50"
+          className={cn(
+            "h-9 min-w-0 flex-1 justify-start gap-1.5 px-2 text-left hover:bg-sidebar-accent hover:text-sidebar-accent-foreground has-[>svg]:px-2 dark:hover:bg-sidebar-accent dark:hover:text-sidebar-accent-foreground",
+            className,
+          )}
           aria-label={
             currentName
               ? `Open ${currentName} ${switcherNoun} switcher`
@@ -273,14 +277,10 @@ function BuiltinCompanyMenu({ open: controlledOpen, onOpenChange }: SidebarCompa
           }
         >
           <span className="flex min-w-0 flex-1 items-center gap-2">
-            {selectedCompany ? <WorkspaceIcon company={selectedCompany} /> : null}
-            {/* The header has room for ~110px of name beside the collapse
-                control (~142px on mobile, which hides it) — search moved to
-                the nav to buy that width. A name that still
-                truncates stays hover-recoverable via title. */}
+            {!hideAvatar && selectedCompany ? <WorkspaceIcon company={selectedCompany} /> : null}
             <span
               className={cn(
-                "min-w-0 truncate text-sm font-bold text-foreground",
+                "min-w-0 truncate text-base font-bold text-foreground tracking-tight",
                 rail && SIDEBAR_RAIL_HIDDEN_LABEL,
               )}
               title={currentName ?? undefined}
@@ -288,7 +288,7 @@ function BuiltinCompanyMenu({ open: controlledOpen, onOpenChange }: SidebarCompa
               {currentName ?? `Select ${switcherNoun}`}
             </span>
           </span>
-          {!rail && <ChevronsUpDown className="size-3.5 shrink-0 text-muted-foreground" />}
+          {!rail && showChevron && <ChevronsUpDown className="size-3.5 shrink-0 text-muted-foreground" />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

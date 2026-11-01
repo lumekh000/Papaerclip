@@ -17,7 +17,7 @@ const annotationFields = new Set(["capabilities", "status", "implementation", "b
 const specialHomes = { overview: "Overview", "design-proposals": "Design proposals", foundations: "Foundations" };
 
 function files(root, dir) {
-  return readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap(entry => {
+  return readdirSync(path.join(root, dir), { withFileTypes: true }).filter(entry => !entry.name.startsWith("._")).flatMap(entry => {
     const name = `${dir}/${entry.name}`;
     return entry.isDirectory() ? files(root, name) : [name];
   }).sort();

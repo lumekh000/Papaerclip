@@ -106,6 +106,7 @@ function isAllowlisted(relPath, allowlist) {
 // ── File walking ─────────────────────────────────────────────────────────
 function walk(dir, out) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith("._")) continue;
     const p = join(dir, entry.name);
     if (entry.isDirectory()) walk(p, out);
     else if (/\.(tsx?|jsx?)$/.test(entry.name)) out.push(p);

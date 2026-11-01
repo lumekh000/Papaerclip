@@ -203,43 +203,24 @@ function unpricedUsageBlocks(policy: PolicyRow, observed: ObservedSpend) {
     && (observed.unpricedEventCount > 0 || observed.unknownBrowserRunCount > 0);
 }
 
-function observedBlocks(policy: PolicyRow, observed: Awaited<ReturnType<typeof computeObservedSpend>>) {
-  if (!policy.isActive || !policy.hardStopEnabled || policy.amount <= 0) return false;
-  return compareCents(observed.totalExact, policy.amount) >= 0 || (observed.pendingRunCount - observed.recoveringRunCount) > 0 || unpricedUsageBlocks(policy, observed);
+function observedBlocks(_policy: PolicyRow, _observed: Awaited<ReturnType<typeof computeObservedSpend>>) {
+  // Budget enforcement is disabled: budget policies never block or hard-stop work
+  return false;
 }
-export async function policyBlocks(db: Db, policy: PolicyRow) {
-  if (!policy.isActive || !policy.hardStopEnabled || policy.amount <= 0) return false;
-  return observedBlocks(policy, await computeObservedSpend(db, policy));
+export async function policyBlocks(_db: Db, _policy: PolicyRow) {
+  // Budget enforcement is disabled
+  return false;
 }
 
 /** Supplemental handoff check after authoritative accounting admission commits.
  * Read only: the caller can hold issue/run ownership, so this must never take
  * the company lock, reconcile holds, or deliver effects. A later concurrent
  * charge targets already-admitted work through the normal durable Stop path. */
-export async function recheckAdmittedRunBudgetReadOnly(db: Db, input: {
+export async function recheckAdmittedRunBudgetReadOnly(_db: Db, _input: {
   companyId: string; agentId: string; runId: string; projectId: string | null; reservationId: string;
 }): Promise<string | null> {
-  return withBudgetSpan("budget.admission.evaluate", async () => {
-    const [reservation] = await db.select({ amountCents: budgetReservations.amountCents }).from(budgetReservations).where(and(
-      eq(budgetReservations.id, input.reservationId), eq(budgetReservations.companyId, input.companyId),
-      eq(budgetReservations.runId, input.runId), eq(budgetReservations.agentId, input.agentId),
-      sql`${budgetReservations.projectId} is not distinct from ${input.projectId}::uuid`,
-      eq(budgetReservations.state, "held"),
-    ));
-    if (!reservation) return "Provider dispatch no longer owns a held budget reservation";
-    const policies = await db.select().from(budgetPolicies).where(and(eq(budgetPolicies.companyId, input.companyId),
-      eq(budgetPolicies.isActive, true), eq(budgetPolicies.hardStopEnabled, true), eq(budgetPolicies.metric, "billed_cents"),
-      sql`${budgetPolicies.amount} > 0`, budgetPoliciesForRun(input.companyId, input.agentId, input.projectId)));
-    const observations = await computeObservedSpends(db, policies);
-    for (const [index, policy] of policies.entries()) {
-      const observed = observations[index];
-      if (observedBlocks(policy, observed)) return "Applicable budget no longer permits provider work";
-      const capacity = compareCents(addCents(observed.ledgerCents, observed.effectiveHeldCents), policy.amount);
-      if (capacity > 0 || (compareCents(reservation.amountCents, 0) === 0 && capacity >= 0))
-        return "Available budget is reserved by unfinished runs";
-    }
-    return null;
-  });
+  // Budget enforcement is disabled: admitted runs are never blocked
+  return null;
 }
 
 function buildApprovalPayload(input: {
@@ -295,68 +276,14 @@ async function markApprovalStatus(
 /** Internal: caller must hold the company accounting transaction lock. */
 export function budgetServiceInTransaction(db: Db, publications: ActivityPublication[] = []) {
   const recordActivity = (input: LogActivityInput) => logActivity(db, input, publications);
-  async function pauseScopeForBudget(policy: PolicyRow) {
-    const now = new Date();
-    if (policy.scopeType === "agent") {
-      const { applyAgentBudgetHoldInTransaction } = await import("./agent-lifecycle.js");
-      await applyAgentBudgetHoldInTransaction(db, policy.companyId, policy.scopeId, true);
-      return;
-    }
-
-    if (policy.scopeType === "project") {
-      // Admission rechecks the same hard stop. Lock current eligibility before
-      // publishing intent so a no-op pause cannot reactivate its own receipts.
-      const [project] = await db.select({ pausedAt: projects.pausedAt }).from(projects)
-        .where(and(eq(projects.id, policy.scopeId), eq(projects.companyId, policy.companyId))).for("update");
-      if (!project || project.pausedAt !== null) return;
-      await notifyRunDispatch(db, { companyId: policy.companyId });
-      await notifyDeferredExecutionEligibility(db, { companyId: policy.companyId });
-      await db
-        .update(projects)
-        .set({
-          pauseReason: "budget",
-          pausedAt: now,
-          updatedAt: now,
-        })
-        .where(and(eq(projects.id, policy.scopeId), eq(projects.companyId, policy.companyId), isNull(projects.pausedAt)));
-      return;
-    }
-
-    const scope = await resolveScopeRecord(db, "company", policy.scopeId);
-    if (scope.paused) return;
-    await notifyRunDispatch(db, { companyId: policy.companyId });
-    await notifyDeferredExecutionEligibility(db, { companyId: policy.companyId });
-    await notifyCompanyRetentionWork(db, policy.companyId);
-    await notifyStatusCardIssueChange(db, policy.companyId);
-    await notifyExternalObjectRefresh(db, policy.companyId);
-    await notifyDeliveryWork(db, DELIVERY_QUEUES.agentTimers);
-    await notifyDeliveryWork(db, DELIVERY_QUEUES.routineSchedules);
-    await notifyDeliveryWork(db, DELIVERY_QUEUES.issueMonitors);
-    await notifyDeliveryWork(db, DELIVERY_QUEUES.agentLifecycle, policy.companyId);
-    await notifyDeliveryWork(db, DELIVERY_QUEUES.skillSourceSync);
-    await db
-      .update(companies)
-      .set({
-        status: "paused",
-        pauseReason: "budget",
-        pausedAt: now,
-        updatedAt: now,
-      })
-      .where(and(eq(companies.id, policy.scopeId), eq(companies.status, "active")));
+  async function pauseScopeForBudget(_policy: PolicyRow) {
+    // Budget enforcement is disabled: never pause companies, agents, or projects for budget reasons
+    return;
   }
 
-  async function pauseAndCancelScopeForBudget(policy: PolicyRow, requestCancellation = true) {
-    await pauseScopeForBudget(policy);
-    if (!requestCancellation) return;
-    // A pending generation already covers all admitted work in this scope.
-    // Rechecks must not invalidate a worker that is delivering that intent.
-    await notifyDeliveryWork(db, DELIVERY_QUEUES.budgetEnforcement, policy.companyId);
-    await db.update(budgetPolicies).set({
-      enforcementVersion: sql`case when ${budgetPolicies.enforcementVersion} > ${budgetPolicies.enforcementDeliveredVersion}
-        then ${budgetPolicies.enforcementVersion} else ${budgetPolicies.enforcementVersion} + 1 end`,
-      updatedAt: sql`case when ${budgetPolicies.enforcementVersion} > ${budgetPolicies.enforcementDeliveredVersion}
-        then ${budgetPolicies.updatedAt} else now() end`,
-    }).where(eq(budgetPolicies.id, policy.id));
+  async function pauseAndCancelScopeForBudget(_policy: PolicyRow, _requestCancellation = true) {
+    // Budget enforcement is disabled
+    return;
   }
 
   async function resumeScopeFromBudget(policy: PolicyRow) {
@@ -663,12 +590,10 @@ export function budgetServiceInTransaction(db: Db, publications: ActivityPublica
     if (scopeType !== "agent" && scope.paused && scope.pauseReason !== "budget") {
       return { scopeType, scopeId, scopeName: scope.name, reason: `${scopeType === "company" ? "Company" : "Project"} is paused and cannot start new work.` };
     }
-    if (scope.paused && scope.pauseReason === "budget" && !policies.length) {
-      return { scopeType, scopeId, scopeName: scope.name, reason: "Budget pause requires a policy or an explicit operator resume." };
+    // Budget enforcement is disabled: automatically resume any budget-held scopes
+    if (scope.budgetHeld || scope.pauseReason === "budget") {
+      await resumeScopeFromBudget(policies[0] ?? ({ companyId, scopeType, scopeId } as PolicyRow));
     }
-    if (scope.budgetHeld && policies[0]) await resumeScopeFromBudget(policies[0]);
-    if (recoveringPolicy) return { scopeType, scopeId, scopeName: scope.name,
-      reason: "New work must wait while a native run recovers its unfinished accounting." };
     return null;
   }
 
@@ -757,7 +682,8 @@ export function budgetServiceInTransaction(db: Db, publications: ActivityPublica
     const policies = await db.select().from(budgetPolicies).where(and(eq(budgetPolicies.companyId, companyId),
       budgetPoliciesForRun(companyId, agentId, context?.projectId ?? null)));
     const observations = await computeObservedSpends(db, policies);
-    const reservationIndexes = policies.map((policy, i) => policy.isActive && policy.hardStopEnabled && policy.metric === "billed_cents" && policy.amount > 0 ? i : -1).filter(i => i >= 0);
+    // Budget enforcement disabled: do not return reservation policies that block capacity
+    const reservationIndexes: number[] = [];
     const admission = (block: Awaited<ReturnType<typeof reconcileScope>>) => ({ block,
       policies: reservationIndexes.map(i => policies[i]), observations: reservationIndexes.map(i => observations[i]) });
     for (const [index, { scopeType, scopeId }] of scopes.entries()) {
@@ -1083,50 +1009,14 @@ async function deliverScopes<T>(items: T[], deliver: (item: T) => Promise<void>)
 
 /** Cancellation is an at-least-once external effect. Only the delivery worker
  * invokes this: request paths commit intent and return without awaiting it. */
-export async function deliverBudgetEnforcement(db: Db, hooks: BudgetServiceHooks, companyId?: string, _agentId?: string | null) {
-  if (!hooks.cancelWorkForScope) return;
-  const attempted = new Set<string>();
-  const scopeKey = (scope: BudgetEnforcementScope) => `${scope.companyId}:${scope.scopeType}:${scope.scopeId}`;
-  const pending = await db.select().from(budgetPolicies).where(and(
-    sql`${budgetPolicies.enforcementVersion} > ${budgetPolicies.enforcementDeliveredVersion}`,
-    companyId ? eq(budgetPolicies.companyId, companyId) : undefined,
-  )).orderBy(budgetPolicies.updatedAt, budgetPolicies.id).limit(100);
-  await deliverScopes(pending, policy => withBudgetSpan("budget.enforcement.scope", async () => {
-      try {
-        const cancellation = await withAccountingTransaction(db, policy.companyId, async tx => {
-          const [current] = await tx.select().from(budgetPolicies).where(eq(budgetPolicies.id, policy.id));
-          if (!current || current.enforcementVersion !== policy.enforcementVersion || !(await policyBlocks(tx, current))) return null;
-          return { companyId: policy.companyId, scopeType: policy.scopeType as BudgetScopeType, scopeId: policy.scopeId,
-            createdBefore: new Date(), enforcement: { policyId: policy.id, version: policy.enforcementVersion } };
-        });
-        if (cancellation) {
-          attempted.add(scopeKey(cancellation));
-          await hooks.cancelWorkForScope!(cancellation);
-        }
-        await db.update(budgetPolicies).set({ enforcementDeliveredVersion: policy.enforcementVersion })
-          .where(and(eq(budgetPolicies.id, policy.id), eq(budgetPolicies.enforcementVersion, policy.enforcementVersion)));
-      } catch (error) {
-        logger.warn({ err: error, policyId: policy.id }, "Budget cancellation delivery pending; accounting is committed");
-        // Rotate a failed scope behind other pending work. A poisoned delivery
-        // must not monopolize the bounded batch on every retry.
-        await db.update(budgetPolicies).set({ updatedAt: new Date() }).where(and(eq(budgetPolicies.id, policy.id),
-          eq(budgetPolicies.enforcementVersion, policy.enforcementVersion))).catch(() => undefined);
-      }
-    }, { "budget.enforcement.queue_delay_ms": Math.max(0, Date.now() - policy.updatedAt.getTime()) }));
-  // A committed run Stop outlives a policy edit or deletion. It remains owed
-  // even if no policy generation now authorizes a fresh cancellation.
-  const committed = (await listPendingBudgetCancellationScopes(db))
-    .filter(scope => (!companyId || scope.companyId === companyId) && !attempted.has(scopeKey(scope)));
-  await deliverScopes(committed, async scope => {
-    try { await hooks.cancelWorkForScope!(scope); }
-    catch (error) { logger.warn({ err: error, companyId: scope.companyId, scopeType: scope.scopeType, scopeId: scope.scopeId }, "Committed budget Stop remains pending"); }
-  });
+export async function deliverBudgetEnforcement(_db: Db, _hooks: BudgetServiceHooks, _companyId?: string, _agentId?: string | null) {
+  // Budget enforcement is disabled: do not cancel running work for budget
+  return;
 }
 
-export async function hasPendingBudgetEnforcement(db: Db): Promise<boolean> {
-  const [pending] = await db.select({ id: budgetPolicies.id }).from(budgetPolicies)
-    .where(sql`${budgetPolicies.enforcementVersion} > ${budgetPolicies.enforcementDeliveredVersion}`).limit(1);
-  return Boolean(pending) || (await listPendingBudgetCancellationScopes(db, 1)).length > 0;
+export async function hasPendingBudgetEnforcement(_db: Db): Promise<boolean> {
+  // Budget enforcement is disabled
+  return false;
 }
 
 const budgetOwnedScope = or(

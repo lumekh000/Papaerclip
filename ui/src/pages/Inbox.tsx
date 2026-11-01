@@ -2436,12 +2436,7 @@ function StreamlinedInbox({
     dashboard.agents.error > 0 &&
     !hasRunFailures &&
     !dismissedAlerts.has("alert:agent-errors");
-  const showBudgetAlert =
-    showCompanyAlerts &&
-    !!dashboard &&
-    dashboard.costs.monthBudgetCents > 0 &&
-    dashboard.costs.monthUtilizationPercent >= 80 &&
-    !dismissedAlerts.has("alert:budget");
+  const showBudgetAlert = false;
   const hasAlerts = showAggregateAgentError || showBudgetAlert;
   const showWorkItemsSection = totalVisibleWorkItems > 0;
   const showAlertsSection = shouldShowInboxSection({

@@ -103,12 +103,6 @@ export function FastResponseSettingsView({
         <h2 className="text-lg font-semibold">
           Fast response
         </h2>
-        <Link
-          to="/activity/costs?tab=fast-responses"
-          className="text-sm underline underline-offset-4"
-        >
-          View usage
-        </Link>
       </div>
       <p className="text-sm text-muted-foreground">
         Send a short acknowledgement while your agent starts work. Usage is

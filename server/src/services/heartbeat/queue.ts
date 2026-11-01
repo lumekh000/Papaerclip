@@ -520,7 +520,8 @@ export function createHeartbeatQueue(db: Db, dependencies: HeartbeatQueueDepende
       }
     }
 
-    if (checkCostCap && policy.maxDailyCostCents !== null) {
+    // Budget enforcement disabled: do not block on daily cost limits
+    if (false && checkCostCap && policy.maxDailyCostCents !== null) {
       const [row] = await client
         .select({
           total: sql<string>`coalesce(sum(${costEvents.costCents}), 0)::text`,

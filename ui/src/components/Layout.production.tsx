@@ -21,6 +21,7 @@ import {
   useParams,
 } from "@/lib/router";
 import { Sidebar } from "./Sidebar.production";
+import { CompanyRail } from "./CompanyRail";
 import { CompanySettingsSidebar } from "./CompanySettingsSidebar.production";
 import { CompanySettingsNav } from "./access/CompanySettingsNav";
 import { AppsSidebar } from "./AppsSidebar.production";
@@ -634,6 +635,7 @@ export function Layout() {
               )}
             >
               <div className="flex flex-1 min-h-0 overflow-hidden">
+                <CompanyRail />
                 <div className="w-60 shrink-0 overflow-hidden">
                   {hasSecondarySidebar ? secondarySidebar : <Sidebar />}
                 </div>
@@ -641,24 +643,27 @@ export function Layout() {
               <SidebarAccountMenu deploymentMode={health?.deploymentMode} />
             </div>
           ) : (
-            <SidebarShell
-              open={sidebarOpen}
-              collapsed={designSandbox ? false : collapsed}
-              peeking={designSandbox ? false : peeking}
-              resizable
-              storageKey={designSandbox ? "paperclip.design-proposals.sandbox.sidebar-width" : undefined}
-              onPanelMouseEnter={handlePanelPointerEnter}
-              onPanelMouseLeave={handlePanelPointerLeave}
-              onPanelFocusCapture={collapsed ? handlePanelFocus : undefined}
-              onPanelBlurCapture={collapsed ? handlePanelBlur : undefined}
-            >
-              {designSandbox ? <DesignSandboxSidebar /> : <>
-                <div className="flex flex-1 min-h-0">
-                  <Sidebar />
-                </div>
-                <SidebarAccountMenu deploymentMode={health?.deploymentMode} />
-              </>}
-            </SidebarShell>
+            <div className="flex h-full shrink-0">
+              <CompanyRail />
+              <SidebarShell
+                open={sidebarOpen}
+                collapsed={designSandbox ? false : collapsed}
+                peeking={designSandbox ? false : peeking}
+                resizable
+                storageKey={designSandbox ? "paperclip.design-proposals.sandbox.sidebar-width" : undefined}
+                onPanelMouseEnter={handlePanelPointerEnter}
+                onPanelMouseLeave={handlePanelPointerLeave}
+                onPanelFocusCapture={collapsed ? handlePanelFocus : undefined}
+                onPanelBlurCapture={collapsed ? handlePanelBlur : undefined}
+              >
+                {designSandbox ? <DesignSandboxSidebar /> : <>
+                  <div className="flex flex-1 min-h-0">
+                    <Sidebar />
+                  </div>
+                  <SidebarAccountMenu deploymentMode={health?.deploymentMode} />
+                </>}
+              </SidebarShell>
+            </div>
           )}
 
           {!isMobile && hasSecondarySidebar ? (

@@ -6,7 +6,7 @@ export const sidebarLabel = title => title.replaceAll("/", ", ");
 export function featureIndex(root) {
   const directory = path.join(root, "maps/feature-map");
   const sections = new Map();
-  for (const file of readdirSync(directory).filter(file => file.endsWith(".md") && file !== "README.md").sort()) {
+  for (const file of readdirSync(directory).filter(file => !file.startsWith("._") && file.endsWith(".md") && file !== "README.md").sort()) {
     const id = file.slice(0, -3);
     const source = readFileSync(path.join(directory, file), "utf8");
     const frontmatter = source.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);

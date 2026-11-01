@@ -22,14 +22,19 @@ export function AnimatedPaperclipIcon({ className, ...props }: SVGProps<SVGSVGEl
   );
 }
 
-/** Full-page loading state: a large, centered, gray animated paperclip. */
+/** Full-page loading state: a centered LuMekH logo with smooth pulse. */
 export function PaperclipLoading({ className }: { className?: string }) {
   return (
     <div
       role="status"
       className={cn("flex min-h-dvh w-full items-center justify-center", className)}
     >
-      <AnimatedPaperclipIcon className="h-24 w-24 text-muted-foreground" />
+      <img
+        src="/brand/lumekh-logo.png"
+        alt=""
+        aria-hidden="true"
+        className="size-20 object-contain animate-pulse drop-shadow-md"
+      />
       <span className="sr-only">Loading…</span>
     </div>
   );

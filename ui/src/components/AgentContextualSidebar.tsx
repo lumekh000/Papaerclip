@@ -1,15 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-  Activity,
-  BadgeDollarSign,
   BookOpenText,
   FileCode2,
   History,
   KeyRound,
   Library,
   MessageSquare,
-  PlayCircle,
-  ReceiptText,
   Settings2,
   ShieldCheck,
   Sparkles,
@@ -25,7 +21,6 @@ import { contextualSidebarStyles } from "./contextual-sidebar-styles";
 import {
   AGENT_DETAIL_NAVIGATION,
   agentDetailHref,
-  agentScopedAuditHref,
   type AgentLocalDetailView,
 } from "@/pages/agent-detail-navigation";
 
@@ -42,13 +37,6 @@ const localIcons = {
   revisions: History,
   advanced: FileCode2,
 } satisfies Record<AgentLocalDetailView, typeof Sparkles>;
-
-const auditItems = [
-  { section: "activity", label: "Activity", icon: Activity },
-  { section: "runs", label: "Runs", icon: PlayCircle },
-  { section: "costs", label: "Costs", icon: ReceiptText },
-  { section: "budgets", label: "Budgets", icon: BadgeDollarSign },
-] as const;
 
 export function AgentContextualSidebar({
   agentRef,
@@ -120,26 +108,6 @@ export function AgentContextualSidebar({
             {pluginTabs.map(slot => <SidebarNavItem key={`${slot.pluginKey}:${slot.id}`} to={`/agents/${encodeURIComponent(agentRef)}/${encodeURIComponent(`plugin:${slot.pluginKey}:${slot.id}`)}`} label={slot.displayName} icon={Wrench} />)}
           </div>
         </div>}
-        <div data-slot="contextual-sidebar-section" className={contextualSidebarStyles.section}>
-          <p
-            data-slot="contextual-sidebar-section-label"
-            className={contextualSidebarStyles.sectionLabel}
-          >
-            Audit
-          </p>
-          <div data-slot="contextual-sidebar-group" className={contextualSidebarStyles.group}>
-            {resolvedId ? auditItems.map((item) => (
-              <SidebarNavItem
-                key={item.section}
-                to={agentScopedAuditHref(resolvedId, item.section)}
-                label={item.label}
-                icon={item.icon}
-              />
-            )) : (
-              <p className="px-2 py-1.5 text-xs text-muted-foreground">Loading audit links…</p>
-            )}
-          </div>
-        </div>
       </nav>
     </ContextualSidebarFrame>
   );

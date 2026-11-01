@@ -1680,60 +1680,9 @@ export function createHeartbeatRunControl(db: Db, dependencies: HeartbeatRunCont
       inArray(browserUseSessions.id, sessions.map(session => session.id))));
   }
 
-  async function cancelBudgetScopeWork(scope: BudgetEnforcementScope) {
-    const reason = "Cancelled due to budget pause";
-    const newlyFenced = await withCurrentBudgetEnforcement(db, scope, async (tx) => {
-      // Queue admission and every selected run lose authority in this commit,
-      // before any provider can delay cancellation delivery.
-      await cancelPendingWakeupsForBudgetScope(scope, tx);
-      await stopBrowserSessionsForBudgetScope(tx, scope);
-      const candidates = scope.scopeType === "project"
-        ? await listProjectScopedRunIds(scope.companyId, scope.scopeId, scope.createdBefore, tx)
-        : await tx.select({ id: heartbeatRuns.id }).from(heartbeatRuns).where(and(
-          eq(heartbeatRuns.companyId, scope.companyId),
-          scope.scopeType === "agent" ? eq(heartbeatRuns.agentId, scope.scopeId) : undefined,
-          scope.createdBefore ? lt(heartbeatRuns.createdAt, scope.createdBefore) : undefined,
-          inArray(heartbeatRuns.status, [...CANCELLABLE_HEARTBEAT_RUN_STATUSES]),
-        )).then((rows) => rows.map((row) => row.id));
-      if (!candidates.length) return [];
-      await notifyScheduledRetryCancellation(tx, { companyId: scope.companyId });
-      return tx.update(heartbeatRuns).set({ resultJson: runCancellationFenceSql({
-        cancellation: requestedRunCancellation({}, reason), errorCode: "cancelled", preserveCancellation: true, budgetEnforcement: scope,
-      }) }).where(and(eq(heartbeatRuns.companyId, scope.companyId), inArray(heartbeatRuns.id, candidates),
-        inArray(heartbeatRuns.status, [...CANCELLABLE_HEARTBEAT_RUN_STATUSES]),
-        scope.createdBefore ? lt(heartbeatRuns.createdAt, scope.createdBefore) : undefined,
-      )).returning({ id: heartbeatRuns.id }).then((rows) => rows.map((row) => row.id));
-    });
-    // A later policy change revokes permission to fence new work, not the Stop
-    // already committed for older work. Recovery must deliver those intents.
-    const pending = await db.select({ id: heartbeatRuns.id }).from(heartbeatRuns).where(and(
-      pendingBudgetRunCancellationPredicate(), budgetCancellationScopePredicate(scope),
-    ));
-    const runIds = [...new Set([...(newlyFenced ?? []), ...pending.map(run => run.id)])];
-    if (!runIds.length) return;
-    const failures: unknown[] = [];
-    let nextRun = 0;
-    await Promise.all(Array.from({ length: Math.min(4, runIds.length) }, async () => {
-      while (nextRun < runIds.length) {
-        const runId = runIds[nextRun++]!;
-        try {
-          // The committed intent owns these old runs even if a later budget
-          // edit admits new work. Do not revoke or repeat that earlier fence.
-          await withBudgetStopDelivery(db, async () => {
-            const [attempted] = await db.update(heartbeatRuns).set({ resultJson: sql`jsonb_set(${heartbeatRuns.resultJson},
-              '{startupCancellation,budgetEnforcement,lastAttemptAt}', ${JSON.stringify(new Date().toISOString())}::jsonb)` })
-              .where(and(eq(heartbeatRuns.companyId, scope.companyId), eq(heartbeatRuns.id, runId),
-                pendingBudgetRunCancellationPredicate())).returning({ id: heartbeatRuns.id });
-            if (attempted) await cancelRun(runId, reason, {}, true);
-          });
-        } catch (error) {
-          failures.push(error);
-        }
-      }
-    }));
-    // Drain the batch before rejecting; one failed provider must not prevent
-    // the remaining runs from receiving their already-committed Stop.
-    if (failures.length) throw new AggregateError(failures, "Budget cancellation delivery remains pending");
+  async function cancelBudgetScopeWork(_scope: BudgetEnforcementScope) {
+    // Budget enforcement is disabled: never cancel runs or wakeups due to budget pause
+    return;
   }
 
   return {

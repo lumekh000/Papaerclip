@@ -39,7 +39,7 @@ export function checkMaps(repoRoot = defaultRoot) {
   }
   function files(dir) {
     if (!existsSync(dir)) { fail(dir, "missing map directory"); return []; }
-    return readdirSync(dir).filter((name) => name.endsWith(".md") && name !== "README.md").sort();
+    return readdirSync(dir).filter((name) => !name.startsWith("._") && name.endsWith(".md") && name !== "README.md").sort();
   }
   function unique(ids, file, label) {
     const seen = new Set();

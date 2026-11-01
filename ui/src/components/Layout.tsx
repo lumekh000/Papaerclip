@@ -33,6 +33,7 @@ import { AgentConversationsSidebar } from "./AgentConversationsSidebar";
 import { useAgentChatEnabled } from "../hooks/useAgentChatEnabled";
 import { SidebarShell } from "./SidebarShell";
 import { SecondarySidebar } from "./SecondarySidebar";
+import { CompanyRail } from "./CompanyRail";
 import { ContextualSidebarFrame } from "./ContextualSidebarFrame";
 import { SidebarAccountMenu } from "./SidebarAccountMenu";
 import { useDialogActions } from "../context/DialogContext";
@@ -624,6 +625,7 @@ export function Layout({ sidebarSections }: { sidebarSections?: ReactNode }) {
             )}
           >
             <div className="flex flex-1 min-h-0 overflow-hidden">
+              <CompanyRail />
               <div className="w-60 shrink-0 overflow-hidden">
                 {hasSecondarySidebar ? (
                   <SecondarySidebar>{secondarySidebar}</SecondarySidebar>
@@ -638,31 +640,34 @@ export function Layout({ sidebarSections }: { sidebarSections?: ReactNode }) {
             />
           </div>
         ) : (
-          <SidebarShell
-            open={sidebarOpen}
-            collapsed={designSandbox || replacesPrimarySidebar ? false : collapsed}
-            peeking={designSandbox || replacesPrimarySidebar ? false : peeking}
-            resizable
-            storageKey={designSandbox ? "paperclip.design-proposals.sandbox.sidebar-width" : coordinatorWorkspaceEnabled ? "paperclip.coordinator.sidebar-width" : undefined}
-            onPanelMouseEnter={replacesPrimarySidebar ? undefined : handlePanelPointerEnter}
-            onPanelMouseLeave={replacesPrimarySidebar ? undefined : handlePanelPointerLeave}
-            onPanelFocusCapture={!replacesPrimarySidebar && collapsed ? handlePanelFocus : undefined}
-            onPanelBlurCapture={!replacesPrimarySidebar && collapsed ? handlePanelBlur : undefined}
-          >
-            {designSandbox ? <DesignSandboxSidebar /> : <>
-              <div className="flex flex-1 min-h-0">
-                {replacesPrimarySidebar ? (
-                  <SecondarySidebar>{secondarySidebar}</SecondarySidebar>
-                ) : (
-                  <Sidebar>{sidebarSections}</Sidebar>
-                )}
-              </div>
-              <SidebarAccountMenu
-                deploymentMode={health?.deploymentMode}
-                forceExpanded={replacesPrimarySidebar}
-              />
-            </>}
-          </SidebarShell>
+          <div className="flex h-full shrink-0">
+            <CompanyRail />
+            <SidebarShell
+              open={sidebarOpen}
+              collapsed={designSandbox || replacesPrimarySidebar ? false : collapsed}
+              peeking={designSandbox || replacesPrimarySidebar ? false : peeking}
+              resizable
+              storageKey={designSandbox ? "paperclip.design-proposals.sandbox.sidebar-width" : coordinatorWorkspaceEnabled ? "paperclip.coordinator.sidebar-width" : undefined}
+              onPanelMouseEnter={replacesPrimarySidebar ? undefined : handlePanelPointerEnter}
+              onPanelMouseLeave={replacesPrimarySidebar ? undefined : handlePanelPointerLeave}
+              onPanelFocusCapture={!replacesPrimarySidebar && collapsed ? handlePanelFocus : undefined}
+              onPanelBlurCapture={!replacesPrimarySidebar && collapsed ? handlePanelBlur : undefined}
+            >
+              {designSandbox ? <DesignSandboxSidebar /> : <>
+                <div className="flex flex-1 min-h-0">
+                  {replacesPrimarySidebar ? (
+                    <SecondarySidebar>{secondarySidebar}</SecondarySidebar>
+                  ) : (
+                    <Sidebar>{sidebarSections}</Sidebar>
+                  )}
+                </div>
+                <SidebarAccountMenu
+                  deploymentMode={health?.deploymentMode}
+                  forceExpanded={replacesPrimarySidebar}
+                />
+              </>}
+            </SidebarShell>
+          </div>
         )}
 
         {!isMobile && ((showsAdjacentSecondarySidebar && !keepsPrimarySidebar) || (designSandbox && replacesPrimarySidebar)) ? (
