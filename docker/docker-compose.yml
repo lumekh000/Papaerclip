@@ -16,6 +16,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   server:
+    image: docker-paperclip:latest
     build:
       context: ..
       dockerfile: Dockerfile
