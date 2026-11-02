@@ -521,7 +521,8 @@ export function createHeartbeatQueue(db: Db, dependencies: HeartbeatQueueDepende
     }
 
     // Budget enforcement disabled: do not block on daily cost limits
-    if (false && checkCostCap && policy.maxDailyCostCents !== null) {
+    /*
+    if (checkCostCap && policy.maxDailyCostCents !== null) {
       const [row] = await client
         .select({
           total: sql<string>`coalesce(sum(${costEvents.costCents}), 0)::text`,
@@ -544,6 +545,7 @@ export function createHeartbeatQueue(db: Db, dependencies: HeartbeatQueueDepende
         };
       }
     }
+    */
 
     return null;
   }
